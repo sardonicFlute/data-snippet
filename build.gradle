@@ -1,0 +1,52 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.3.RELEASE'
+        gradleNodeVersion = '1.1.1'
+    }
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+
+    }
+}
+
+
+group 'org.neatsee'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'idea'
+
+
+bootRun {
+    addResources = true
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile("org.springframework.boot:spring-boot-starter-web")
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
+    compile("org.springframework.boot:spring-boot-devtools")
+    // 解决 thymeleaf 整合 vue 时 ，出现的 SaxParseException, 降低thymeleaf 的 html 语言规范校验度
+    compile('net.sourceforge.nekohtml:nekohtml:1.9.22')
+
+    compile 'org.webjars:jquery:3.1.0'
+    compile 'org.webjars:bootstrap:3.3.7'
+
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+
+jar {
+    baseName = 'data-snippet-portal'
+    version = '1.0.0-SNAPSHOT'
+}

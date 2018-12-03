@@ -1,0 +1,14 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>data snippet</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p class="hello">Get your greeting <a href="/hello">here</a></p>
+<div id="main" style="width: 800px;height:600px;"></div>
+
+</body>
+
+<script th:src="@{http://localhost:9000/hello/index_bundle.js}"></script>
+</html>

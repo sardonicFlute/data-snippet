@@ -1,0 +1,258 @@
+<html
+
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" xmlns:v-on="http://www.w3.org/1999/xhtml"
+        xmlns:v-bind="http://www.w3.org/1999/xhtml"
+>
+
+<head>
+    <!--/*@thymesVar id="stockName" type="text"*/-->
+    <!--/*@thymesVar id="ticker" type=""*/-->
+    <!--/*@thymesVar id="exchangeCode" type="ch"*/-->
+    <link rel="stylesheet"
+          href="../../static/libs/bootstrap-slider/css/bootstrap-slider.min.css"
+          th:href="@{/libs/bootstrap-slider/css/bootstrap-slider.min.css}"/>
+    <link rel="stylesheet"
+          th:href="@{/libs/odemeter/odometer-theme-default.css}" />
+    <link rel="stylesheet"
+          th:href="@{/information/hint.css}"/>
+    <link th:unless="${@environment.acceptsProfiles('src')}" rel="stylesheet" th:href="@{/stock/detail_style.css}"/>
+</head>
+<body class="body-ai-stock">
+
+<section class="pure-container" layout:fragment="content">
+
+    <div class="ai-floor" id="stock_profile">
+        <div class="stock-header">
+            <div class="ai-wrapper">
+                <div class="base-part">
+                    <!--/*@thymesVar id="ticker" type="ch"*/-->
+                    <!--/*@thymesVar id="exchangeCode" type="ch"*/-->
+                    <!--/*@thymesVar id="exchangeCode2" type=""*/-->
+                    <!--/*@thymesVar id="usableAmt" type="ch"*/-->
+                    <!--/*@thymesVar id="stockName" type="ch"*/-->
+                    <div class="name-block" id="stock_mark"
+                         th:attr="data-t=${ticker},data-e=${exchangeCode},data-e2=${exchangeCode2},data-u=${usableAmt},data-n=${stockName}">
+                        <div class="name-line">
+                            <div class="stock-code"><i class="market-icon"
+                                                       th:classappend="'market-' + ${exchangeCode}"></i><span
+                                    th:text="${ticker}" class="code-text">603000</span></div>
+                            <div class="stock-name" th:text="${stockName}">人民网</div>
+                        </div>
+                    </div>
+                    <div class="evaluate-block">
+                        <div v-pre class="evaluate-chart-container">
+                            <div class="m-chart-a" id="evaluate_chart" style="width: 280px; height: 220px;"></div>
+                        </div>
+                    </div>
+                    <div class="evaluate-note-block">
+                        <div class="dashboard-line">
+                            <div class="m-chart-a" id="dashboard_score_chart" style="width: 130px; height: 130px;"></div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div class="stock-detail">
+            <div v-pre class="stock-detail-nav">
+                <div class="ai-wrapper">
+                    <div class="nav-analyse">
+                        <ul class="nav nav-tabs">
+                            <li class="tab active"><a href="#market" data-toggle="tab" id="chart_market">个股行情</a></li>
+                            <li class="tab "><a href="#stockAnalyse" data-toggle="tab" id="stock_analyse">综合诊股</a></li>
+                            <li class="tab"><a href="#costAnalyse" data-toggle="tab" id="cost_analyse">成本分析</a></li>
+                            <li class="tab"><a href="#fundFlow" data-toggle="tab" id="fund_flow">资金流向</a></li>
+                            <li class="tab"><a href="#relatedNews" data-toggle="tab" id="related_news">新闻公告</a></li>
+                            <li class="tab"><a href="#relatedResearch" data-toggle="tab" id="related_research">关联研报</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="stock-detail-collection">
+                <div class="tab-content">
+                    <div class="tab-stock-pane tab-pane fade in active -market -theme-light" id="market">
+                        <div class="ai-wrapper">
+                            <div class="market-exhibit">
+                                <div class="chart-block">
+
+                                    <div class="chart-nav">
+                                        <a class="nav-link" v-bind:class="chartType==='trend' ? 'active' : ''" href="javascript:"
+                                           v-on:click="changeChart('trend')">分时</a>
+                                        <a class="nav-link" v-bind:class="chartType==='k1' ? 'active' : ''" href="javascript:"
+                                           v-on:click="changeChart('k1')">日K</a>
+                                    </div>
+                                    <div class="chart-container" v-pre>
+                                        <div id="stock_chart" class="chart-element" style="width: 950px; height: 520px;"></div>
+                                    </div>
+                                </div>
+                                <div class="control-block" data-js-box-collection th:unless="${externalLink}">
+                                    <div v-pre class="control-box -open">
+                                        <div class="box-header">
+                                            <div class="header-title">账户资产</div>
+                                            <div class="fold-mark"></div>
+                                        </div>
+                                        <div class="box-detail">
+                                            <div class="usable-amount-container">
+                                                <div class="amount-line">
+                                                    <cite class="info-value amount-value" data-js-amount th:title="点击刷新可用资金">
+                                                        <!--<span id="usable_amount" class="usable-amount" th:text="${#numbers.formatDecimal(usableAmt,1,'COMMA',2,'POINT')}">1,000</span> 元-->
+                                                    </cite>
+                                                </div>
+                                                <div class="note-line">账户可用</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--/*@thymesVar id="externalLink" type="ch"*/-->
+                                    <div v-pre class="control-box" data-js-entrust-box th:unless="${externalLink}">
+                                        <div class="box-header">
+                                            <div class="header-title">快速下单</div>
+                                            <div class="fold-mark"></div>
+                                        </div>
+                                        <div class="box-detail">
+                                            <div class="entrust-area-wrapper">
+                                                <div id="stock_entrust" class="entrust-area">
+                                                    <form class="m-form" th:id="entrust_form">
+                                                        <!--/*@thymesVar id="ticker" type="ch"*/-->
+                                                        <input type="hidden" name="ticker" th:value="${ticker}">
+                                                        <input type="hidden" name="exchangeType" v-model="exchangeType">
+                                                        <input type="hidden" name="stockAccount" v-model="stockAccount">
+                                                        <input type="hidden" name="orderType" v-model="orderType">
+                                                        <input type="hidden" name="tradeDirection" v-model="tradeDirection">
+                                                        <div class="entrust-header">
+                                                            <div class="market-note">
+                                                                <div class="price" v-on:click="setTradePriceToNew">
+                                                                    <em class="info-key">最新：</em>
+                                                                    <cite class="info-value">
+                                                                        <span v-if="isOffline">-</span>
+                                                                        <span v-else v-bind:class="market.stateClass">{{ market.fLast | decimal }} {{ market.deltaRate }}</span>
+                                                                    </cite>
+                                                                </div>
+                                                                <div v-if="isPurchase" class="available">
+                                                                    <em class="info-key">可买：</em>
+                                                                    <cite class="info-value">{{ buyAvailable }}</cite>
+                                                                </div>
+                                                                <div v-else class="available">
+                                                                    <em class="info-key">可卖：</em>
+                                                                    <cite class="info-value">{{ sellAvailable }}</cite>
+                                                                </div>
+                                                            </div>
+                                                            <div class="price-control">
+                                                                <a v-if="priceType === 'limit'" v-on:click="changePriceType('market')"
+                                                                   class="price-control-link" href="javascript:">限价委托</a>
+                                                                <a v-else v-on:click="changePriceType('limit')"
+                                                                   class="price-control-link" href="javascript:">市价委托</a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="field-line -with-label">
+                                                            <div class="label-block">
+                                                                <label th:for="price_input">价格</label>
+                                                            </div>
+                                                            <div class="input-block -mask-container">
+                                                                <div id="price_spinner" class="custom-spinner" data-trigger="spinner">
+                                                                    <input th:id="price_input" th:name="price" v-model="price"
+                                                                           class="m-input-a form-control text-center"
+                                                                           type="text"
+                                                                           data-min="0.01" data-step="0.01" data-precision="2"
+                                                                           th:placeholder="委托价格" th:title="委托价格">
+                                                                    <div class="custom-spinner-control">
+                                                                        <a href="javascript:" class="spin-up" data-spin="up"><span
+                                                                                class="glyphicon glyphicon-plus"></span></a>
+                                                                        <a href="javascript:" class="spin-down" data-spin="down"><span
+                                                                                class="glyphicon glyphicon-minus"></span></a>
+                                                                    </div>
+                                                                </div>
+                                                                <div v-if="priceType === 'market'" class="sp-mask">
+                                                                    最优五档<br>即时成交剩余撤销
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="field-line -with-label">
+                                                            <div class="label-block">
+                                                                <label th:for="amount_input">数量</label>
+                                                            </div>
+                                                            <div class="input-block">
+                                                                <div id="amount_spinner" class="custom-spinner" data-trigger="spinner">
+                                                                    <input th:id="amount_input" th:name="amount" v-model="amount"
+                                                                           class="m-input-a form-control text-center"
+                                                                           type="text"
+                                                                           data-min="100" data-step="100" data-precision="0"
+                                                                           th:placeholder="委托数量" th:title="委托数量">
+                                                                    <div class="custom-spinner-control">
+                                                                        <a href="javascript:" class="spin-up" data-spin="up"><span
+                                                                                class="glyphicon glyphicon-plus"></span></a>
+                                                                        <a href="javascript:" class="spin-down" data-spin="down"><span
+                                                                                class="glyphicon glyphicon-minus"></span></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="submit-line">
+                                                            <a v-if="isPurchase" v-on:click="toConfirmEntrust"
+                                                               class="trade-submit-btn purchase" href="javascript:">买入</a>
+                                                            <a v-else v-on:click="toConfirmEntrust" class="trade-submit-btn sell"
+                                                               href="javascript:">卖出</a>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="control-box -open">
+                                        <div class="box-header">
+                                            <div class="header-title">买卖五档</div>
+                                            <div class="fold-mark"></div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--<div v-pre class="tab-stock-pane tab-pane fade in" id="stockAnalyse">-->
+                        <!--<div class="ai-wrapper">-->
+                            <!--<div th:replace="stock/d_stock_analyse"></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div v-pre class="tab-stock-pane tab-pane fade in -space-in" id="costAnalyse">-->
+                        <!--<div class="ai-wrapper">-->
+                            <!--<div th:replace="stock/d_cost_analyse"></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div v-pre class="tab-stock-pane tab-pane fade in -space-in" id="fundFlow">-->
+                        <!--<div class="ai-wrapper">-->
+                            <!--<div th:replace="stock/d_fund_flow"></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div v-pre class="tab-stock-pane tab-pane fade in -space-in" id="relatedNews">-->
+                        <!--<div class="ai-wrapper">-->
+                            <!--<div th:replace="stock/d_related_news"></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <!--<div v-pre class="tab-stock-pane tab-pane fade in -space-in" id="relatedResearch">-->
+                        <!--<div class="ai-wrapper">-->
+                            <!--<div th:replace="stock/d_related_research"></div>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="stock-stage">
+
+
+    </div>
+</section>
+
+
+<th:block layout:fragment="script">
+
+    <script th:src="@{/libs/odemeter/odometer.min.js}"></script>
+    <script th:src="@{/libs/lodash/lodash.min.js}"></script>
+    <script th:src="@{/stock/detail_bundle.js}"></script>
+</th:block>
+
+</body>
+</html>
